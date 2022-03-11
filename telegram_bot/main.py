@@ -17,5 +17,10 @@ bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(bot, storage=storage)
 
+class Form(StatesGroup):
+    name = State()
+    contact = State()
+    text = State()
+
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
