@@ -20,3 +20,17 @@ class CaseViewset(viewsets.GenericViewSet):
     def list(self, request):
         serializer = self.serializer_class(self.queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class EventViewset(viewsets.GenericViewSet):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
+
+    def retrieve(self, request, pk=None):
+        event = self.get_object()
+        serializer = self.serializer_class(event)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def list(self, request):
+        serializer = self.serializer_class(self.queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
