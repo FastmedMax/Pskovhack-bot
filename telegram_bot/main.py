@@ -22,5 +22,27 @@ class Form(StatesGroup):
     contact = State()
     text = State()
 
+
+@dp.message_handler(commands="start")
+async def start_cmd_handler(message: types.Message):
+    markup = types.InlineKeyboardMarkup()
+
+    markup.add(
+        types.InlineKeyboardButton("Портфолио", callback_data="portfolio")
+    )
+    markup.add(
+        types.InlineKeyboardButton("Мероприятия", callback_data="events")
+    )
+    markup.add(
+        types.InlineKeyboardButton("О компании", callback_data="about")
+    )
+    markup.add(
+        types.InlineKeyboardButton("Обратная связь", callback_data="callback")
+    )
+
+    await message.reply(
+        "Здесь будет очень важное приветствие!",
+        reply_markup=markup)
+
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
