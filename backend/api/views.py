@@ -34,3 +34,18 @@ class EventViewset(viewsets.GenericViewSet):
     def list(self, request):
         serializer = self.serializer_class(self.queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class CallbackViewset(viewsets.GenericViewSet):
+    queryset = Callback.objects.all()
+    serializer_class = CallbackSerializer
+
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+
+        if not serializer.is_valid(raise_exception=False):
+            return Response(
+                serializer.errors,
+                status=status.HTTP_400_BAD_REQUEST)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
