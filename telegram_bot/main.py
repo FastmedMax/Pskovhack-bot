@@ -95,5 +95,11 @@ async def case(query: types.CallbackQuery):
 
     await bot.send_message(chat_id=query.from_user.id, text=text, parse_mode=types.ParseMode.MARKDOWN)
 
+@dp.callback_query_handler(lambda call: call.data == "about")
+async def about(query: types.CallbackQuery):
+    text = "Информация."
+
+    await bot.send_message(chat_id=query.from_user.id, text=text)
+
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
