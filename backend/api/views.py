@@ -43,9 +43,8 @@ class CallbackViewset(viewsets.GenericViewSet):
     def create(self, request):
         serializer = self.serializer_class(data=request.data)
 
-        if not serializer.is_valid(raise_exception=False):
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if serializer.is_valid(raise_exception=False):
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
