@@ -101,5 +101,36 @@ async def about(query: types.CallbackQuery):
 
     await bot.send_message(chat_id=query.from_user.id, text=text)
 
+@dp.callback_query_handler(lambda call: call.data == "events")
+async def events(query: types.CallbackQuery):
+    markup = types.InlineKeyboardMarkup()
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{URL}/api/events/") as response:
+            if response.status == 200:
+                events = await response.json()
+            else:
+                logger.error(await response.text())
+    num_pages = len(events) // 8
+    
+    for event_1, event_2 in zip_longest(events[0:8:2], events[1:8:2]):
+        buttons = []
+        if event_1:
+            buttons.append(types.InlineKeyboardButton(text=event_1[1], callback_data=f"events:{event_1[0]}"))
+        if event_2:
+            buttons.append(types.InlineKeyboardButton(text=event_2[1], callback_data=f"events:{event_2[0]}"))
+        markup.row(*buttons)
+
+    markup.row(
+        types.InlineKeyboardButton("Назад", callback_data="previous_filters"),
+        types.InlineKeyboardButton(f"1/{num_pages}", callback_data="page_count"),
+        types.InlineKeyboardButton("Далее", callback_data="next_filters"),
+    )
+
+    text = (
+        "events"
+    )
+
+    await bot.send_message(chat_id=query.from_user.id, text=text, reply_markup=markup)
+
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
