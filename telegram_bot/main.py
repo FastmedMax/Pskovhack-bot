@@ -151,5 +151,48 @@ async def case(query: types.CallbackQuery):
     
     await bot.send_message(chat_id=query.from_user.id, text=text, parse_mode=types.ParseMode.MARKDOWN)
 
+@dp.callback_query_handler(lambda call: call.data == "callback")
+async def callback(query: types.CallbackQuery):
+    await Form.name.set()
+    text = "Как вас зовут?"
+    await bot.send_message(chat_id=query.from_user.id, text=text)
+
+@dp.message_handler(state=Form.name)
+async def process_name(message: types.Message, state: FSMContext):
+    await Form.next()
+    async with state.proxy() as data:
+        data["name"] = message.text
+
+    text = "Какой у вас номер телефона/почты?"
+    await bot.send_message(chat_id=message.from_user.id, text=text)
+
+@dp.message_handler(state=Form.contact)
+async def process_contact(message: types.Message, state: FSMContext):
+    await Form.next()
+    async with state.proxy() as data:
+        data["contact"] = message.text
+
+    text = "Какой у вас вопрос?"
+    await bot.send_message(chat_id=message.from_user.id, text=text)
+
+@dp.message_handler(state=Form.text)
+async def process_text(message: types.Message, state: FSMContext):
+    callback = {}
+    async with state.proxy() as data:
+        data["text"] = message.text
+        callback = data.as_dict()
+
+    callback["type"] = "TELEGRAM"
+    callback["user_id"] = message.from_user.id
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{URL}/api/callback/", json=callback) as response:
+            if not response.status == 201:
+                logger.error(await response.text())
+
+    await state.finish()
+    text = "Ваш запрос сформирован."
+    await bot.send_message(chat_id=message.from_user.id, text=text)
+
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
