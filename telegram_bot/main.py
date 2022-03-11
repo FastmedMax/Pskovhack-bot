@@ -75,5 +75,25 @@ async def portfolio(query: types.CallbackQuery):
 
     await bot.send_message(chat_id=query.from_user.id, text=text, reply_markup=markup)
 
+@dp.callback_query_handler(lambda call: call.data.startswith("cases"))
+async def case(query: types.CallbackQuery):
+    case = query.data.split(":")
+    print(query.data)
+    id = case[1]
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{URL}/api/cases/{id}") as response:
+            if response.status == 200:
+                case = await response.json()
+            else:
+                logger.error(await response.text())
+    
+    text = md.text(
+        md.bold(case["title"]),
+        md.italic(case["description"]),
+        sep='\n',
+    )
+
+    await bot.send_message(chat_id=query.from_user.id, text=text, parse_mode=types.ParseMode.MARKDOWN)
+
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
