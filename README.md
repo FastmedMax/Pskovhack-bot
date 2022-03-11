@@ -13,6 +13,7 @@ Provide in file this values:
 DJANGO_SECRET_KEY=        # Can be generated here: https://djecrety.ir/
 DJAGNO_ALLOWED_HOSTS=     # hosts split by whitespace
 DJANGO_DEBUG=             # 1 or 0
+DJANGO_HOST=              # default: http://nginx:80
 
 DB_NAME=
 DB_USER=
@@ -21,6 +22,9 @@ DB_PORT=
 DB_HOST=                  # For use local database, set `host.docker.internal` 
 ```
 
+```
+TELEGRAM_TOKEN=
+```
 # Local Development
 
 Start the dev server for local development:
