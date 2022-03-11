@@ -132,5 +132,24 @@ async def events(query: types.CallbackQuery):
 
     await bot.send_message(chat_id=query.from_user.id, text=text, reply_markup=markup)
 
+@dp.callback_query_handler(lambda call: call.data.startswith("events"))
+async def case(query: types.CallbackQuery):
+    event = query.data.split(":")
+    id = event[1]
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{URL}/api/events/{id}") as response:
+            if response.status == 200:
+                event = await response.json()
+            else:
+                logger.error(await response.text())
+
+    text = md.text(
+        md.bold(event["title"]),
+        md.italic(event["description"]),
+        sep='\n',
+    )
+    
+    await bot.send_message(chat_id=query.from_user.id, text=text, parse_mode=types.ParseMode.MARKDOWN)
+
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
