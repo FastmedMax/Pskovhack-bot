@@ -44,5 +44,36 @@ async def start_cmd_handler(message: types.Message):
         "Здесь будет очень важное приветствие!",
         reply_markup=markup)
 
+@dp.callback_query_handler(lambda call: call.data == "portfolio")
+async def portfolio(query: types.CallbackQuery):
+    markup = types.InlineKeyboardMarkup()
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{URL}/api/cases/") as response:
+            if response.status == 200:
+                cases = await response.json()
+            else:
+                logger.error(await response.text())
+    num_pages = len(cases) // 8
+    
+    for portfolio_1, portfolio_2 in zip_longest(cases[0:8:2], cases[1:8:2]):
+        buttons = []
+        if portfolio_1:
+            buttons.append(types.InlineKeyboardButton(text=portfolio_1[1], callback_data=f"cases:{portfolio_1[0]}"))
+        if portfolio_2:
+            buttons.append(types.InlineKeyboardButton(text=portfolio_2[1], callback_data=f"cases:{portfolio_2[0]}"))
+        markup.row(*buttons)
+
+    markup.row(
+        types.InlineKeyboardButton("Назад", callback_data="previous_cases"),
+        types.InlineKeyboardButton(f"1/{num_pages}", callback_data="page_count"),
+        types.InlineKeyboardButton("Далее", callback_data="next_cases"),
+    )
+
+    text = (
+        "cases"
+    )
+
+    await bot.send_message(chat_id=query.from_user.id, text=text, reply_markup=markup)
+
 if __name__ == "__main__":
     executor.start_polling(dp, skip_updates=True)
