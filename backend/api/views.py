@@ -18,8 +18,8 @@ class CaseViewset(viewsets.GenericViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def list(self, request):
-        serializer = self.serializer_class(self.queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        cases = self.queryset.values_list("id", "title")
+        return Response(cases, status=status.HTTP_200_OK)
 
 
 class EventViewset(viewsets.GenericViewSet):
@@ -32,8 +32,8 @@ class EventViewset(viewsets.GenericViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def list(self, request):
-        serializer = self.serializer_class(self.queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        events = self.queryset.values_list("id", "title")
+        return Response(events, status=status.HTTP_200_OK)
 
 
 class CallbackViewset(viewsets.GenericViewSet):
