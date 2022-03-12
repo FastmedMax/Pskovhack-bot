@@ -129,7 +129,6 @@ async def change_cases(call: types.CallbackQuery):
 @dp.callback_query_handler(lambda call: call.data.startswith("cases"))
 async def case(query: types.CallbackQuery):
     case = query.data.split(":")
-    print(query.data)
     id = case[1]
     async with aiohttp.ClientSession() as session:
         async with session.get(f"{URL}/api/cases/{id}") as response:
