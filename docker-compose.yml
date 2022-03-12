@@ -2,18 +2,42 @@ version: '3.8'
 
 services:
   web:
-    build: ./
+    build:
+      dockerfile: ./backend/Dockerfile
+      context: ./
     command: >
       sh -c "python manage.py collectstatic --noinput &&
-             python manage.py makemigrations &&
-             python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
     ports:
       - 5433:5432
-      - 8000:8000
+    expose:
+      - 8000
     volumes:
-      - ./:/app
+      - ./backend:/home/app
+      - static_volume:/home/app/static
     env_file:
       - ./.env
     extra_hosts:
       - "host.docker.internal:host-gateway"
+  telegram:
+    build:
+      dockerfile: ./telegram_bot/Dockerfile
+      context: ./
+    command: python main.py
+    volumes:
+      - ./telegram_bot:/home/app
+    env_file:
+      - ./.env
+    depends_on:
+      - nginx
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/app/web/staticfiles
+    ports:
+      - 8000:80
+    depends_on:
+      - web
+
+volumes:
+  static_volume:
