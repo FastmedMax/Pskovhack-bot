@@ -53,7 +53,10 @@ async def portfolio(query: types.CallbackQuery):
                 cases = await response.json()
             else:
                 logger.error(await response.text())
+
     num_pages = len(cases) // 8
+    if num_pages == 0:
+        num_pages = 1
     
     for portfolio_1, portfolio_2 in zip_longest(cases[0:8:2], cases[1:8:2]):
         buttons = []
