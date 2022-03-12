@@ -186,6 +186,55 @@ async def events(query: types.CallbackQuery):
 
     await bot.send_message(chat_id=query.from_user.id, text=text, reply_markup=markup)
 
+@dp.callback_query_handler(lambda call: call.data in ["previous_events", "next_events"])
+async def change_cases(call: types.CallbackQuery):
+    chat_id = call.message.chat.id
+    message_id = call.message.message_id
+
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{URL}/api/events/") as response:
+            if response.status == 200:
+                cases = await response.json()
+            else:
+                logger.error(await response.text())
+    nav_buttons = call.message.reply_markup.inline_keyboard[-1]
+    num_pages_btn = nav_buttons[1]
+    current_page, count_pages = map(int, num_pages_btn.text.split("/"))
+
+    if current_page == count_pages and call.data == "next_events":
+        return
+    elif current_page == 1 and call.data == "previous_events":
+        return
+
+    if call.data == "previous_events":
+        next_page = current_page - 1
+    else:
+        next_page = current_page + 1
+    num_pages_btn.text = f"{next_page}/{count_pages}"
+    nav_buttons[1] = num_pages_btn
+
+    markup = types.InlineKeyboardMarkup()
+    start_index_1 = current_page * 8
+    if next_page == 1:
+        start_index_1 = 0
+    start_index_2 = start_index_1 + 1
+    stop_index = next_page * 8
+
+    for event_1, event_2 in zip_longest(cases[start_index_1:stop_index:2], cases[start_index_2:stop_index:2]):
+        buttons = []
+        if event_1:
+            buttons.append(types.InlineKeyboardButton(text=event_1[1], callback_data=f"events:{event_1[0]}"))
+        if event_2:
+            buttons.append(types.InlineKeyboardButton(text=event_2[1], callback_data=f"events:{event_2[0]}"))
+        markup.row(*buttons)
+
+    markup.row(*nav_buttons)
+
+    await bot.edit_message_reply_markup(
+        chat_id=chat_id, message_id=message_id, reply_markup=markup
+    )
+
+
 @dp.callback_query_handler(lambda call: call.data.startswith("events"))
 async def case(query: types.CallbackQuery):
     event = query.data.split(":")
