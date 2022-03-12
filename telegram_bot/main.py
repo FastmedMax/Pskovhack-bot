@@ -127,9 +127,9 @@ async def events(query: types.CallbackQuery):
         markup.row(*buttons)
 
     markup.row(
-        types.InlineKeyboardButton("Назад", callback_data="previous_filters"),
+        types.InlineKeyboardButton("Назад", callback_data="previous_events"),
         types.InlineKeyboardButton(f"1/{num_pages}", callback_data="page_count"),
-        types.InlineKeyboardButton("Далее", callback_data="next_filters"),
+        types.InlineKeyboardButton("Далее", callback_data="next_events"),
     )
 
     text = (
