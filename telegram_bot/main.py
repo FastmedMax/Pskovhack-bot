@@ -44,6 +44,7 @@ async def start_cmd_handler(message: types.Message):
         "Здесь будет очень важное приветствие!",
         reply_markup=markup)
 
+
 @dp.callback_query_handler(lambda call: call.data == "portfolio")
 async def portfolio(query: types.CallbackQuery):
     markup = types.InlineKeyboardMarkup()
@@ -77,6 +78,7 @@ async def portfolio(query: types.CallbackQuery):
     )
 
     await bot.send_message(chat_id=query.from_user.id, text=text, reply_markup=markup)
+
 
 @dp.callback_query_handler(lambda call: call.data in ["previous_cases", "next_cases"])
 async def change_cases(call: types.CallbackQuery):
@@ -126,6 +128,7 @@ async def change_cases(call: types.CallbackQuery):
         chat_id=chat_id, message_id=message_id, reply_markup=markup
     )
 
+
 @dp.callback_query_handler(lambda call: call.data.startswith("cases"))
 async def case(query: types.CallbackQuery):
     case = query.data.split(":")
@@ -145,11 +148,13 @@ async def case(query: types.CallbackQuery):
 
     await bot.send_message(chat_id=query.from_user.id, text=text, parse_mode=types.ParseMode.MARKDOWN)
 
+
 @dp.callback_query_handler(lambda call: call.data == "about")
 async def about(query: types.CallbackQuery):
     text = "Информация."
 
     await bot.send_message(chat_id=query.from_user.id, text=text)
+
 
 @dp.callback_query_handler(lambda call: call.data == "events")
 async def events(query: types.CallbackQuery):
@@ -185,6 +190,7 @@ async def events(query: types.CallbackQuery):
 
     await bot.send_message(chat_id=query.from_user.id, text=text, reply_markup=markup)
 
+
 @dp.callback_query_handler(lambda call: call.data in ["previous_events", "next_events"])
 async def change_cases(call: types.CallbackQuery):
     chat_id = call.message.chat.id
@@ -196,6 +202,7 @@ async def change_cases(call: types.CallbackQuery):
                 cases = await response.json()
             else:
                 logger.error(await response.text())
+
     nav_buttons = call.message.reply_markup.inline_keyboard[-1]
     num_pages_btn = nav_buttons[1]
     current_page, count_pages = map(int, num_pages_btn.text.split("/"))
@@ -252,6 +259,7 @@ async def case(query: types.CallbackQuery):
     )
     
     await bot.send_message(chat_id=query.from_user.id, text=text, parse_mode=types.ParseMode.MARKDOWN)
+
 
 @dp.callback_query_handler(lambda call: call.data == "callback")
 async def callback(query: types.CallbackQuery):
