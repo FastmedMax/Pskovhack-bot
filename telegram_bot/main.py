@@ -113,7 +113,10 @@ async def events(query: types.CallbackQuery):
                 events = await response.json()
             else:
                 logger.error(await response.text())
+    
     num_pages = len(events) // 8
+    if num_pages == 0:
+        num_pages = 1
     
     for event_1, event_2 in zip_longest(events[0:8:2], events[1:8:2]):
         buttons = []
