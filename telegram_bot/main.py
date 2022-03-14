@@ -25,19 +25,19 @@ class Form(StatesGroup):
 
 @dp.message_handler(commands="start")
 async def start_cmd_handler(message: types.Message):
-    markup = types.InlineKeyboardMarkup()
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
 
     markup.add(
-        types.InlineKeyboardButton("Портфолио", callback_data="portfolio")
+        types.InlineKeyboardButton("Портфолио")
     )
     markup.add(
-        types.InlineKeyboardButton("Мероприятия", callback_data="events")
+        types.InlineKeyboardButton("Мероприятия")
     )
     markup.add(
-        types.InlineKeyboardButton("О компании", callback_data="about")
+        types.InlineKeyboardButton("О компании")
     )
     markup.add(
-        types.InlineKeyboardButton("Обратная связь", callback_data="callback")
+        types.InlineKeyboardButton("Обратная связь")
     )
 
     await message.reply(
@@ -45,7 +45,7 @@ async def start_cmd_handler(message: types.Message):
         reply_markup=markup)
 
 
-@dp.callback_query_handler(lambda call: call.data == "portfolio")
+@dp.message_handler(lambda call: call.text == "Портфолио")
 async def portfolio(query: types.CallbackQuery):
     markup = types.InlineKeyboardMarkup()
     async with aiohttp.ClientSession() as session:
@@ -149,14 +149,14 @@ async def case(query: types.CallbackQuery):
     await bot.send_message(chat_id=query.from_user.id, text=text, parse_mode=types.ParseMode.MARKDOWN)
 
 
-@dp.callback_query_handler(lambda call: call.data == "about")
+@dp.message_handler(lambda call: call.text == "О компании")
 async def about(query: types.CallbackQuery):
     text = "Информация."
 
     await bot.send_message(chat_id=query.from_user.id, text=text)
 
 
-@dp.callback_query_handler(lambda call: call.data == "events")
+@dp.message_handler(lambda call: call.text == "Мероприятия")
 async def events(query: types.CallbackQuery):
     markup = types.InlineKeyboardMarkup()
     async with aiohttp.ClientSession() as session:
@@ -261,7 +261,7 @@ async def case(query: types.CallbackQuery):
     await bot.send_message(chat_id=query.from_user.id, text=text, parse_mode=types.ParseMode.MARKDOWN)
 
 
-@dp.callback_query_handler(lambda call: call.data == "callback")
+@dp.message_handler(lambda call: call.text == "Обратная связь")
 async def callback(query: types.CallbackQuery):
     await Form.name.set()
     text = "Как вас зовут?"
