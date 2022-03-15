@@ -9,6 +9,8 @@ from vkbottle.bot import Bot, Message
 URL = os.getenv("DJANGO_HOST")
 bot = Bot(token=os.getenv("VK_TOKEN"))
 
+user_data = {}
+
 
 class MenuState(BaseStateGroup):
     NAME = 1
@@ -105,6 +107,54 @@ async def events(message: Message):
 @bot.on.message(payload={"command":"about"})
 async def about(message: Message):
     text = "Информация о комапнии"
+    await message.answer(message=text)
+
+
+@bot.on.message(payload={"command":"callback"})
+async def callback(message: Message):
+    await bot.state_dispenser.set(message.peer_id, MenuState.NAME)
+
+    user_id = message.peer_id
+    user_data[user_id] = {}
+
+    text = "Как вас зовут?"
+    await message.answer(message=text)
+
+@bot.on.message(state=MenuState.NAME)
+async def process_name(message: Message):
+    await bot.state_dispenser.set(message.peer_id, MenuState.CONTACT)
+
+    user_id = message.peer_id
+    user_data[user_id]["name"] = message.text
+
+    text = "Какой у вас номер телефона/почты?"
+    await message.answer(message=text)
+
+@bot.on.message(state=MenuState.CONTACT)
+async def process_contact(message: Message):
+    await bot.state_dispenser.set(message.peer_id, MenuState.TEXT)
+    
+    user_id = message.peer_id
+    user_data[user_id]["contact"] = message.text
+
+    text = "Какой у вас вопрос?"
+    await message.answer(message=text)
+
+@bot.on.message(state=MenuState.TEXT)
+async def process_text(message: Message):
+    id = message.peer_id
+    callback = {}
+    callback["type"] = "VK"
+    callback["user_id"] = id
+    callback["text"] = message.text
+    callback.update(user_data.pop(id))
+
+    async with aiohttp.ClientSession() as session:
+        async with session.post(f"{URL}/api/callback/", json=callback) as response:
+            if not response.status == 201:
+                logger.error(await response.text())
+
+    text = "Ваш запрос сформирован."
     await message.answer(message=text)
 
 bot.run_forever()
