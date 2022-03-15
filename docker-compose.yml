@@ -30,6 +30,17 @@ services:
       - ./.env
     depends_on:
       - nginx
+  vk_bot:
+    build:
+      dockerfile: ./vk_bot/Dockerfile
+      context: ./
+    command: python main.py
+    volumes:
+      - ./vk_bot:/home/app
+    env_file:
+      - ./.env
+    depends_on:
+      - nginx
   nginx:
     build: ./nginx
     volumes:
