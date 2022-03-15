@@ -66,4 +66,39 @@ async def portfolio(message: Message):
         
         await message.answer(message=text, template=template)
 
+
+@bot.on.message(payload={"command":"events"})
+async def events(message: Message):
+    async with aiohttp.ClientSession() as session:
+        async with session.get(f"{URL}/api/events/") as response:
+            if response.status == 200:
+                events = await response.json()
+            else:
+                logger.error(await response.text())
+    
+    keyboard_1 = Keyboard().add(Text("button 1", {})).get_json()
+    list_elements = []
+    elements = []
+    for i, event in enumerate(events):
+        if (i // 10) == 1:
+            list_elements.append(elements)
+            elements = []
+        
+        elements.append(TemplateElement(
+            buttons=keyboard_1,
+            title=event[1],
+            description="text"
+        ))
+
+    list_elements.append(elements)
+
+    text = "Список"
+
+    for element in list_elements:
+        template = template_gen(
+            *element
+        )
+        
+        await message.answer(message=text, template=template)
+
 bot.run_forever()
