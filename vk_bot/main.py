@@ -101,4 +101,10 @@ async def events(message: Message):
         
         await message.answer(message=text, template=template)
 
+
+@bot.on.message(payload={"command":"about"})
+async def about(message: Message):
+    text = "Информация о комапнии"
+    await message.answer(message=text)
+
 bot.run_forever()
