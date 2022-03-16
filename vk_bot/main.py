@@ -42,7 +42,7 @@ async def portfolio(message: Message):
                 cases = await response.json()
             else:
                 logger.error(await response.text())
-    
+
     keyboard_1 = Keyboard().add(Text("button 1", {})).get_json()
     list_elements = []
     elements = []
@@ -50,7 +50,7 @@ async def portfolio(message: Message):
         if (i // 10) == 1:
             list_elements.append(elements)
             elements = []
-        
+
         elements.append(TemplateElement(
             buttons=keyboard_1,
             title=case[1],
@@ -65,7 +65,7 @@ async def portfolio(message: Message):
         template = template_gen(
             *element
         )
-        
+
         await message.answer(message=text, template=template)
 
 
@@ -77,7 +77,7 @@ async def events(message: Message):
                 events = await response.json()
             else:
                 logger.error(await response.text())
-    
+
     keyboard_1 = Keyboard().add(Text("button 1", {})).get_json()
     list_elements = []
     elements = []
@@ -85,7 +85,7 @@ async def events(message: Message):
         if (i // 10) == 1:
             list_elements.append(elements)
             elements = []
-        
+
         elements.append(TemplateElement(
             buttons=keyboard_1,
             title=event[1],
@@ -100,7 +100,7 @@ async def events(message: Message):
         template = template_gen(
             *element
         )
-        
+
         await message.answer(message=text, template=template)
 
 
@@ -133,7 +133,7 @@ async def process_name(message: Message):
 @bot.on.message(state=MenuState.CONTACT)
 async def process_contact(message: Message):
     await bot.state_dispenser.set(message.peer_id, MenuState.TEXT)
-    
+
     user_id = message.peer_id
     user_data[user_id]["contact"] = message.text
 
