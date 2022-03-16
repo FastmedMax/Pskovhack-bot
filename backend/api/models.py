@@ -5,11 +5,13 @@ from django.db import models
 class Case(models.Model):
     title = models.CharField(verbose_name="Название", max_length=60)
     description = models.TextField(verbose_name="Описание")
+    short_description = models.CharField(verbose_name="Краткое описание", max_length=60)
 
 
 class Event(models.Model):
     title = models.CharField(verbose_name="Название", max_length=60)
     description = models.TextField(verbose_name="Описание")
+    short_description = models.CharField(verbose_name="Краткое описание", max_length=60)
 
 
 class Callback(models.Model):
