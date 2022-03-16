@@ -54,7 +54,7 @@ async def portfolio(message: Message):
         elements.append(TemplateElement(
             buttons=keyboard_1,
             title=case[1],
-            description="text"
+            description=case[2]
         ))
 
     list_elements.append(elements)
@@ -89,7 +89,7 @@ async def events(message: Message):
         elements.append(TemplateElement(
             buttons=keyboard_1,
             title=event[1],
-            description="text"
+            description=event[2]
         ))
 
     list_elements.append(elements)
