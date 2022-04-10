@@ -58,7 +58,7 @@ async def portfolio(query: types.CallbackQuery):
     num_pages = len(cases) // 8
     if num_pages == 0:
         num_pages = 1
-    
+
     for portfolio_1, portfolio_2 in zip_longest(cases[0:8:2], cases[1:8:2]):
         buttons = []
         if portfolio_1:
@@ -91,6 +91,7 @@ async def change_cases(call: types.CallbackQuery):
                 cases = await response.json()
             else:
                 logger.error(await response.text())
+
     nav_buttons = call.message.reply_markup.inline_keyboard[-1]
     num_pages_btn = nav_buttons[1]
     current_page, count_pages = map(int, num_pages_btn.text.split("/"))
@@ -139,7 +140,7 @@ async def case(query: types.CallbackQuery):
                 case = await response.json()
             else:
                 logger.error(await response.text())
-    
+
     text = md.text(
         md.bold(case["title"]),
         md.italic(case["description"]),
@@ -165,11 +166,11 @@ async def events(query: types.CallbackQuery):
                 events = await response.json()
             else:
                 logger.error(await response.text())
-    
+
     num_pages = len(events) // 8
     if num_pages == 0:
         num_pages = 1
-    
+
     for event_1, event_2 in zip_longest(events[0:8:2], events[1:8:2]):
         buttons = []
         if event_1:
@@ -257,7 +258,7 @@ async def case(query: types.CallbackQuery):
         md.italic(event["description"]),
         sep='\n',
     )
-    
+
     await bot.send_message(chat_id=query.from_user.id, text=text, parse_mode=types.ParseMode.MARKDOWN)
 
 
