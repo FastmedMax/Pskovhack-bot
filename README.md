@@ -25,6 +25,9 @@ DB_HOST=                  # For use local database, set `host.docker.internal`
 ```
 TELEGRAM_TOKEN=
 ```
+```
+VK_TOKEN=
+```
 # Local Development
 
 Start the dev server for local development:
