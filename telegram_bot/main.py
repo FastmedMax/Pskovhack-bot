@@ -28,24 +28,35 @@ async def start_cmd_handler(message: types.Message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=False)
 
     markup.add(
-        types.InlineKeyboardButton("Портфолио")
+        types.InlineKeyboardButton("Просмотреть портфолио")
     )
     markup.add(
-        types.InlineKeyboardButton("Мероприятия")
+        types.InlineKeyboardButton("Информация о мероприятиях")
     )
     markup.add(
-        types.InlineKeyboardButton("О компании")
+        types.InlineKeyboardButton("Информация о компании")
     )
     markup.add(
-        types.InlineKeyboardButton("Обратная связь")
+        types.InlineKeyboardButton("Обратная связь/вопрос")
     )
 
-    await message.reply(
-        "Здесь будет очень важное приветствие!",
-        reply_markup=markup)
+    text = (
+        "PskovHack - это ИТ компания, которая выросла из сообщества участников"
+        "в мероприятиях в формате хакатон. Мы участвовали в около 35 хакатонах"
+        "от Всероссийских до Международных. Совместно с партнерами"
+        "(Гильдия игропрактиков, GeekZ, Seldon, Практики Будущего) организовали"
+        "4 всероссийских игровых хакатона, также организовали на базе ПсковГУ"
+        "локальных хакатон \"СпортХак\". После побед и организации хакатонов перешли"
+        "к выполнению коммерческих заказов и созданию инвестиционных проектов."
+        "Опыт разработки PskovHack включает в себя разработку проектов для мин."
+        "цифры Развития и связи Алтайского края, для ПсковГУ, профкома МГУ и многих"
+        "других структур."
+    )
+
+    await message.reply(text=text, reply_markup=markup)
 
 
-@dp.message_handler(lambda call: call.text == "Портфолио")
+@dp.message_handler(lambda call: call.text == "Просмотреть портфолио")
 async def portfolio(query: types.CallbackQuery):
     markup = types.InlineKeyboardMarkup()
     async with aiohttp.ClientSession() as session:
@@ -74,7 +85,9 @@ async def portfolio(query: types.CallbackQuery):
     )
 
     text = (
-        "cases"
+        "Здесь Вы можете просмотреть наш портфолио – все наши работы и проекты, "
+        "над которыми мы усердно трудились. Воспользуйтесь кнопками навигации, "
+        "чтобы просмотреть динамический список кейсов. "
     )
 
     await bot.send_message(chat_id=query.from_user.id, text=text, reply_markup=markup)
@@ -150,14 +163,19 @@ async def case(query: types.CallbackQuery):
     await bot.send_message(chat_id=query.from_user.id, text=text, parse_mode=types.ParseMode.MARKDOWN)
 
 
-@dp.message_handler(lambda call: call.text == "О компании")
+@dp.message_handler(lambda call: call.text == "Информация о компании")
 async def about(query: types.CallbackQuery):
-    text = "Информация."
+    text = (
+        "Приветствует всех в нашем (мультифункциональном) боте ПСКОВХАК! "
+        "С помощью этого бота Вы можете просмотреть наше портфолио, узнать "
+        "подробную информацию о компании, получить информацию о наших ближайших "
+        "мероприятиях и получить от нас фидбек (задать нам свои вопросы)."
+    )
 
     await bot.send_message(chat_id=query.from_user.id, text=text)
 
 
-@dp.message_handler(lambda call: call.text == "Мероприятия")
+@dp.message_handler(lambda call: call.text == "Информация о мероприятиях")
 async def events(query: types.CallbackQuery):
     markup = types.InlineKeyboardMarkup()
     async with aiohttp.ClientSession() as session:
@@ -186,7 +204,8 @@ async def events(query: types.CallbackQuery):
     )
 
     text = (
-        "events"
+        "Здесь Вы можете получить информацию о наших ближайших мероприятиях. "
+        "Воспользуйтесь кнопками навигации, чтобы просмотреть динамический список мероприятий. "
     )
 
     await bot.send_message(chat_id=query.from_user.id, text=text, reply_markup=markup)
@@ -262,10 +281,23 @@ async def case(query: types.CallbackQuery):
     await bot.send_message(chat_id=query.from_user.id, text=text, parse_mode=types.ParseMode.MARKDOWN)
 
 
-@dp.message_handler(lambda call: call.text == "Обратная связь")
+@dp.message_handler(lambda call: call.text == "Обратная связь/вопрос")
 async def callback(query: types.CallbackQuery):
     await Form.name.set()
-    text = "Как вас зовут?"
+
+    text_intro = (
+        "Этот раздел является своеобразной книгой жалоб и предложений: "
+        "здесь Вы можете написать свои пожелания относительно наших проектов "
+        "и сервисов, (описать опыт работы в каком-либо из них), "
+        "а также задать нам все интересующие Вас вопросы. "
+    )
+
+    text = (
+        "Чтобы задать нам вопрос, ответьте, пожалуйста, на несколько вопросов:\n"
+        "Подскажите, как к Вам можно обращаться."
+    )
+
+    await bot.send_message(chat_id=query.from_user.id, text=text_intro)
     await bot.send_message(chat_id=query.from_user.id, text=text)
 
 @dp.message_handler(state=Form.name)
@@ -274,7 +306,7 @@ async def process_name(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["name"] = message.text
 
-    text = "Какой у вас номер телефона/почты?"
+    text = "Укажите свои контактные данные: номер телефона или адрес электронной почты."
     await bot.send_message(chat_id=message.from_user.id, text=text)
 
 @dp.message_handler(state=Form.contact)
@@ -283,7 +315,7 @@ async def process_contact(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data["contact"] = message.text
 
-    text = "Какой у вас вопрос?"
+    text = "Задайте свой вопрос или напишите свои пожелания. Мы ответим Вам в ближайшее время. Заранее спасибо!"
     await bot.send_message(chat_id=message.from_user.id, text=text)
 
 @dp.message_handler(state=Form.text)
@@ -302,7 +334,7 @@ async def process_text(message: types.Message, state: FSMContext):
                 logger.error(await response.text())
 
     await state.finish()
-    text = "Ваш запрос сформирован."
+    text = "Спасибо за Ваше сообщение! Вы сможете увидеть ответы на все ваши запросы в этом чате."
     await bot.send_message(chat_id=message.from_user.id, text=text)
 
 if __name__ == "__main__":

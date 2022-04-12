@@ -21,17 +21,24 @@ class MenuState(BaseStateGroup):
 @bot.on.message(text="Start")
 @bot.on.message(payload={"command":"start"})
 async def hi_handler(message: Message):
-    users_info = await bot.api.users.get(message.from_id)
     KEYBOARD_WITH_BUILDER = (
         Keyboard(one_time=False, inline=False)
-        .add(Text("Портфолио", payload={"command": "portfolio"}))
-        .add(Text("Мероприятия", payload={"command": "events"}))
+        .add(Text("Просмотреть портфолио", payload={"command": "portfolio"}))
+        .add(Text("Информация о мероприятиях", payload={"command": "events"}))
         .row()
-        .add(Text("О компании", payload={"command": "about"}))
-        .add(Text("Обратная связь", payload={"command": "callback"}))
+        .add(Text("Информация о компании", payload={"command": "about"}))
+        .add(Text("Обратная связь/вопрос", payload={"command": "callback"}))
         .get_json()
     )
-    await message.answer("Привет, {}".format(users_info[0].first_name), keyboard=KEYBOARD_WITH_BUILDER)
+
+    text = (
+        "Приветствует всех в нашем (мультифункциональном) боте ПСКОВХАК! "
+        "С помощью этого бота Вы можете просмотреть наше портфолио, узнать "
+        "подробную информацию о компании, получить информацию о наших ближайших "
+        "мероприятиях и получить от нас фидбек (задать нам свои вопросы)."
+    )
+
+    await message.answer(text=text, keyboard=KEYBOARD_WITH_BUILDER)
 
 
 @bot.on.message(payload={"command":"portfolio"})
@@ -59,7 +66,11 @@ async def portfolio(message: Message):
 
     list_elements.append(elements)
 
-    text = "Список"
+    text = (
+        "Здесь Вы можете просмотреть наш портфолио – все наши работы и проекты, "
+        "над которыми мы усердно трудились. Воспользуйтесь кнопками навигации, "
+        "чтобы просмотреть динамический список кейсов. "
+    )
 
     for element in list_elements:
         template = template_gen(
@@ -94,7 +105,10 @@ async def events(message: Message):
 
     list_elements.append(elements)
 
-    text = "Список"
+    text = (
+        "Здесь Вы можете получить информацию о наших ближайших мероприятиях. "
+        "Воспользуйтесь кнопками навигации, чтобы просмотреть динамический список мероприятий. "
+    )
 
     for element in list_elements:
         template = template_gen(
@@ -106,7 +120,19 @@ async def events(message: Message):
 
 @bot.on.message(payload={"command":"about"})
 async def about(message: Message):
-    text = "Информация о комапнии"
+    text = (
+        "PskovHack - это ИТ компания, которая выросла из сообщества участников"
+        "в мероприятиях в формате хакатон. Мы участвовали в около 35 хакатонах"
+        "от Всероссийских до Международных. Совместно с партнерами"
+        "(Гильдия игропрактиков, GeekZ, Seldon, Практики Будущего) организовали"
+        "4 всероссийских игровых хакатона, также организовали на базе ПсковГУ"
+        "локальных хакатон \"СпортХак\". После побед и организации хакатонов перешли"
+        "к выполнению коммерческих заказов и созданию инвестиционных проектов."
+        "Опыт разработки PskovHack включает в себя разработку проектов для мин."
+        "цифры Развития и связи Алтайского края, для ПсковГУ, профкома МГУ и многих"
+        "других структур."
+    )
+
     await message.answer(message=text)
 
 
@@ -117,8 +143,21 @@ async def callback(message: Message):
     user_id = message.peer_id
     user_data[user_id] = {}
 
-    text = "Как вас зовут?"
+    text_intro = (
+        "Этот раздел является своеобразной книгой жалоб и предложений: "
+        "здесь Вы можете написать свои пожелания относительно наших проектов "
+        "и сервисов, (описать опыт работы в каком-либо из них), "
+        "а также задать нам все интересующие Вас вопросы. "
+    )
+
+    text = (
+        "Чтобы задать нам вопрос, ответьте, пожалуйста, на несколько вопросов:\n"
+        "Подскажите, как к Вам можно обращаться."
+    )
+
+    await message.answer(message=text_intro)
     await message.answer(message=text)
+
 
 @bot.on.message(state=MenuState.NAME)
 async def process_name(message: Message):
@@ -127,7 +166,7 @@ async def process_name(message: Message):
     user_id = message.peer_id
     user_data[user_id]["name"] = message.text
 
-    text = "Какой у вас номер телефона/почты?"
+    text = "Укажите свои контактные данные: номер телефона или адрес электронной почты."
     await message.answer(message=text)
 
 @bot.on.message(state=MenuState.CONTACT)
@@ -137,7 +176,7 @@ async def process_contact(message: Message):
     user_id = message.peer_id
     user_data[user_id]["contact"] = message.text
 
-    text = "Какой у вас вопрос?"
+    text = "Задайте свой вопрос или напишите свои пожелания. Мы ответим Вам в ближайшее время. Заранее спасибо!"
     await message.answer(message=text)
 
 @bot.on.message(state=MenuState.TEXT)
@@ -154,7 +193,7 @@ async def process_text(message: Message):
             if not response.status == 201:
                 logger.error(await response.text())
 
-    text = "Ваш запрос сформирован."
+    text = "Спасибо за Ваше сообщение! Вы сможете увидеть ответы на все ваши запросы в этом чате."
     await message.answer(message=text)
 
 bot.run_forever()
